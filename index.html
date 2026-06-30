@@ -632,7 +632,7 @@
             <i class="ph rn-i ph-arrow-left"></i>
           </button>
           <div style="font: 700 17px Montserrat; letter-spacing: 0.02em">
-            Reglas de la casa
+            Reglas del hogar
           </div>
         </div>
         <div style="padding: 24px 20px 40px">
@@ -683,7 +683,7 @@
             <i class="ph rn-i ph-arrow-left"></i>
           </button>
           <div style="font: 700 17px Montserrat; letter-spacing: 0.02em">
-            Cómo llegar
+            Cómo volver
           </div>
         </div>
         <div style="padding: 20px 20px 40px">
@@ -697,7 +697,7 @@
           >
             <iframe
               title="Mapa"
-              src="https://maps.google.com/maps?q=Pino%20Huacho%202%2C%20Valdivia&z=13&output=embed"
+              src="https://maps.google.com/maps?q=loc:-39.865443+-73.375001&z=15&output=embed"
               style="display: block; width: 100%; height: 230px; border: 0"
               loading="lazy"
             ></iframe>
@@ -731,7 +731,7 @@
             </div>
           </div>
           <a
-            href="https://www.google.com/maps/dir/?api=1&destination=Pino%20Huacho%202%2C%20Valdivia%2C%20Los%20Rios%2C%20Chile"
+            href="https://www.google.com/maps/dir/?api=1&destination=-39.865443,-73.375001&travelmode=driving"
             target="_blank"
             rel="noopener"
             style="
@@ -749,7 +749,7 @@
               letter-spacing: 0.06em;
             "
             ><i class="ph ph-navigation-arrow" style="font-size: 18px"></i>CÓMO
-            LLEGAR EN GOOGLE MAPS</a
+            VOLVER EN GOOGLE MAPS</a
           >
           <div
             style="
@@ -1262,12 +1262,12 @@
           key: 'rules',
           icon: 'ph-scroll',
           label: 'Reglas',
-          desc: 'Normas de la casa',
+          desc: 'Normas del hogar',
         },
         {
           key: 'location',
           icon: 'ph-map-pin-line',
-          label: 'Cómo llegar',
+          label: 'Cómo volver',
           desc: 'Mapa y auto',
         },
         {
@@ -1308,36 +1308,91 @@
         },
       ];
 
-      const rules = [
+      const ruleSections = [
         {
-          icon: 'ph-users-three',
-          title: 'Hasta 3 huéspedes',
-          note: 'Capacidad máxima de la cabaña.',
+          title: 'Normas Generales',
+          items: [
+            {
+              icon: 'ph-cigarette-slash',
+              title: 'Área de fumadores en terraza',
+              note: 'Las colillas deben depositarse en una bolsa y dejarse en el basurero de la terraza.',
+            },
+            {
+              icon: 'ph-prohibit',
+              title: 'No botar papeles al inodoro',
+              note: 'El baño funciona con fosa séptica. Por favor, no arrojes papel ni otros residuos al inodoro, ya que se tapa. Usa el basurero.',
+            },
+            {
+              icon: 'ph-drop-slash',
+              title: 'Para desmaquillar, no uses las toallas blancas',
+              note: 'Usa las toallitas desmaquillantes. Las encontrarás en el mueble del baño.',
+            },
+            {
+              icon: 'ph-plant',
+              title: 'Las plantas son reales — cuídalas como en casa',
+              note: 'Tanto las de interior como las del jardín.',
+            },
+          ],
         },
         {
-          icon: 'ph-cigarette-slash',
-          title: 'No fumar dentro',
-          note: 'Puedes hacerlo en la terraza.',
+          title: 'Cocina y Áreas Comunes',
+          items: [
+            {
+              icon: 'ph-cooking-pot',
+              title: 'Deja la cocina limpia',
+              note: 'La loza, el horno y las ollas deben quedar limpios después de usarlos.',
+            },
+            {
+              icon: 'ph-flame',
+              title: 'Limpia la parrilla',
+              note: 'Si la utilizas, debe quedar limpia como la encontraste.',
+            },
+          ],
         },
         {
-          icon: 'ph-confetti',
-          title: 'Sin fiestas ni eventos',
-          note: 'Es un espacio para descansar.',
+          title: 'Antes de Retirarte',
+          items: [
+            {
+              icon: 'ph-trash',
+              title: 'Basura al contenedor de la terraza',
+              note: 'La basura del baño y la cocina va en el basurero grande al costado de la terraza.',
+            },
+            {
+              icon: 'ph-lightbulb',
+              title: 'Apaga luces, TV, cocina y calefacción al salir',
+              note: '',
+            },
+            {
+              icon: 'ph-drop',
+              title: 'Cierra las llaves',
+              note: 'Revisa que no haya agua corriendo en las llaves de la cabaña y el patio.',
+            },
+            {
+              icon: 'ph-bag',
+              title: 'No olvides tus pertenencias',
+              note: 'Podemos enviarte lo que quede, aunque el envío va a tu cargo.',
+            },
+          ],
         },
         {
-          icon: 'ph-moon-stars',
-          title: 'Silencio 22:00–08:00',
-          note: 'Respeta el descanso y el entorno.',
+          title: 'Uso de la Plancha',
+          items: [
+            {
+              icon: 'ph-wind',
+              title: 'Plancha a vapor disponible',
+              note: 'Cuenta con su manual de uso. Si no sabes cómo utilizarla, no dudes en consultarme.',
+            },
+          ],
         },
         {
-          icon: 'ph-recycle',
-          title: 'Cuida la naturaleza',
-          note: 'Separa la basura y ahorra agua y luz.',
-        },
-        {
-          icon: 'ph-video-camera',
-          title: 'Cámaras solo exteriores',
-          note: 'Por seguridad, nunca en interiores.',
+          title: 'Limpieza Adicional',
+          items: [
+            {
+              icon: 'ph-sparkle',
+              title: 'Déjala como la encontraste',
+              note: 'En caso de requerir limpieza adicional significativa al finalizar la estadía, se aplicará un cargo proporcional al trabajo extra ($80.000). Esto incluye dejar la cabaña con suciedad excesiva, basura acumulada, ropa de cama o toallas manchadas, o cualquier daño que requiera limpieza profunda.',
+            },
+          ],
         },
       ];
 
@@ -1494,14 +1549,24 @@
       }
 
       function buildRules() {
-        document.getElementById('rules-list').innerHTML = rules
+        document.getElementById('rules-list').innerHTML = ruleSections
           .map(
-            (r) => `
-    <div style="display:flex;gap:13px;align-items:flex-start;padding:15px 0;border-bottom:1px solid rgba(46,58,48,.09)">
-      <i class="ph ${r.icon}" style="font-size:21px;color:#8A9E84;margin-top:1px"></i>
-      <div><div style="font:600 14px Montserrat;color:#2E3A30">${r.title}</div><div style="font:400 12.5px/1.5 Montserrat;color:#8a8a82;margin-top:2px">${r.note}</div></div>
-    </div>
-  `,
+            (section) => `
+          <div style="font:600 11px Montserrat;letter-spacing:.3em;color:#8A9E84;margin:24px 0 8px">${section.title.toUpperCase()}</div>
+          ${section.items
+            .map(
+              (r) => `
+            <div style="display:flex;gap:13px;align-items:flex-start;padding:15px 0;border-bottom:1px solid rgba(46,58,48,.09)">
+              <i class="ph ${r.icon}" style="font-size:21px;color:#8A9E84;flex:none;margin-top:1px"></i>
+              <div>
+                <div style="font:600 14px Montserrat;color:#2E3A30">${r.title}</div>
+                ${r.note ? `<div style="font:400 12.5px/1.5 Montserrat;color:#8a8a82;margin-top:2px">${r.note}</div>` : ''}
+              </div>
+            </div>
+          `,
+            )
+            .join('')}
+        `,
           )
           .join('');
       }
