@@ -23,10 +23,13 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Inject WiFi password
+      - name: Inject secrets
         env:
           WIFI_PASS: ${{ secrets.WIFI_PASS }}
-        run: sed -i "s/__WIFI_PASS__/$WIFI_PASS/g" index.html
+          PHONE_NUMBER: ${{ secrets.PHONE_NUMBER }}
+        run: |
+          sed -i "s/__WIFI_PASS__/$WIFI_PASS/g" index.html
+          sed -i "s/__PHONE_NUMBER__/$PHONE_NUMBER/g" index.html
 
       - uses: actions/configure-pages@v5
 
