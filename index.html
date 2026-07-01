@@ -689,21 +689,6 @@
         <div style="padding: 20px 20px 40px">
           <div
             style="
-              border-radius: 18px;
-              overflow: hidden;
-              border: 1px solid rgba(46, 58, 48, 0.1);
-              box-shadow: 0 16px 36px -28px rgba(31, 40, 35, 0.5);
-            "
-          >
-            <iframe
-              title="Mapa"
-              src="https://maps.google.com/maps?q=loc:-39.865443+-73.375001&z=15&output=embed"
-              style="display: block; width: 100%; height: 230px; border: 0"
-              loading="lazy"
-            ></iframe>
-          </div>
-          <div
-            style="
               background: #fbfaf6;
               border: 1px solid rgba(46, 58, 48, 0.08);
               border-radius: 16px;
@@ -751,6 +736,16 @@
             ><i class="ph ph-navigation-arrow" style="font-size: 18px"></i>CÓMO
             VOLVER EN GOOGLE MAPS</a
           >
+          <img
+            src="images/cerro-indicaciones.png"
+            alt="Indicaciones para transitar por el cerro"
+            style="
+              display: block;
+              width: 100%;
+              border-radius: 16px;
+              margin-top: 14px;
+            "
+          />
           <div
             style="
               display: flex;
@@ -763,8 +758,12 @@
           >
             <i class="ph ph-info" style="font-size: 21px; color: #2e3a30"></i>
             <div style="font: 400 12.5px/1.5 Montserrat; color: #3a463c">
-              El camino sube por el cerro con huellas de cemento; es apto para
-              cualquier auto. También se puede llegar caminando.
+              El camino de subida es parte del encanto: tranquilo y rodeado de
+              naturaleza. Algunos tramos son angostos y pasa un auto a la vez,
+              así que te recomendamos ir con calma. Por ley, quien sube tiene la
+              preferencia, pero aquí nos cuidamos entre vecinos: si ves que
+              alguien ya viene bajando a mitad de camino, regálale la pasada.
+              Manejando despacio y con atención, llegarás sin problema.
             </div>
           </div>
         </div>
@@ -1987,7 +1986,6 @@
         },
       ];
 
-
       function mq(q) {
         return (
           'https://www.google.com/maps/search/?api=1&query=' +
@@ -2151,7 +2149,6 @@
           )
           .join('');
       }
-
 
       function buildPlaceList(containerId, items, icon) {
         document.getElementById(containerId).innerHTML = items
