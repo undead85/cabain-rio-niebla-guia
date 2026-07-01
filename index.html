@@ -68,6 +68,7 @@
         display: block;
       }
     </style>
+    <script defer src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "d997203435bb4b0280c9d255dd8e0654"}'></script>
   </head>
   <body>
     <div
@@ -2101,6 +2102,7 @@
           .querySelectorAll('.screen')
           .forEach((el) => el.classList.remove('active'));
         document.getElementById('screen-' + screen).classList.add('active');
+        history.replaceState(null, '', screen === 'home' ? '/' : '/#' + screen);
         window.scrollTo(0, 0);
       }
 
