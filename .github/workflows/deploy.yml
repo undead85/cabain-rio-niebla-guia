@@ -38,5 +38,6 @@ jobs:
         uses: cloudflare/wrangler-action@v3
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          wranglerVersion: '3.90.0'
           accountId: cc7f705b663e3c9bdb32f78214a067d0
           command: pages deploy out --project-name=cabain-rio-niebla-guia
