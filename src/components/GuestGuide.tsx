@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import {
   ArrowLeft,
   Bag,
@@ -56,8 +56,10 @@ type ScreenKey =
   | "checkout"
   | "contact";
 
-const WIFI_NETWORK = "WifiTelsur_EFE6";
+const WIFI_NETWORK = "__WIFI_NETWORK__";
 const WIFI_PASS = "__WIFI_PASS__";
+const CHECKIN_TIME = "15:00";
+const CHECKOUT_TIME = "12:00";
 const WHATSAPP_URL =
   "https://wa.me/__PHONE_NUMBER__?text=Hola%20Anita%2C%20te%20escribo%20desde%20la%20caba%C3%B1a%20R%C3%ADo%20y%20Niebla.";
 
@@ -202,13 +204,13 @@ const appliances: { icon: Icon; title: string; subtitle: string; steps: string[]
     subtitle: "Smart TV con streaming",
     steps: [
       "Enciende con el control; entrada HDMI por defecto.",
-      "Conéctate al Wi-Fi RioyNiebla si lo pide.",
+      `Conéctate al Wi-Fi ${WIFI_NETWORK} si lo pide.`,
       "Cierra tu sesión de las apps antes de irte.",
     ],
   },
 ];
 
-function mq(q: string) {
+function mapsSearchUrl(q: string) {
   return "https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent(q);
 }
 
@@ -254,12 +256,30 @@ const explore = [
   },
 ];
 
+const checkinSteps = [
+  "Avísame cuando estés en camino para coordinar tu llegada.",
+  "El acceso es por el sector Pino Huacho 2; el camino tiene huellas de cemento y sube cualquier vehículo.",
+  "Te enviaré el código de la cerradura el día de tu llegada. ¡Bienvenido!",
+];
+
 const checkoutSteps = [
   "Deja las llaves donde acordamos al ingresar.",
   "Apaga luces, calefacción y cierra ventanas.",
   "Saca la basura al lugar indicado.",
   "Deja la loza limpia; del resto me encargo yo.",
 ];
+
+function screenFromHash(): ScreenKey {
+  const hash = window.location.hash.slice(1);
+  return cats.some((c) => c.key === hash) ? (hash as ScreenKey) : "home";
+}
+
+function subscribeToHistory(callback: () => void) {
+  window.addEventListener("popstate", callback);
+  return () => window.removeEventListener("popstate", callback);
+}
+
+const getServerScreen = (): ScreenKey => "home";
 
 function SubHeader({ title, onBack }: { title: string; onBack: () => void }) {
   return (
@@ -272,7 +292,7 @@ function SubHeader({ title, onBack }: { title: string; onBack: () => void }) {
       >
         <ArrowLeft size={22} />
       </button>
-      <div className="text-[17px] font-bold tracking-[0.02em]">{title}</div>
+      <h2 className="text-[17px] font-bold tracking-[0.02em]">{title}</h2>
     </div>
   );
 }
@@ -303,24 +323,25 @@ function PlaceListScreen({
       <SubHeader title={title} onBack={onBack} />
       <div className="px-5 pt-5 pb-10">
         <p className="mb-4 text-[13px] leading-[1.6] text-[#5D6B5A]">{intro}</p>
-        <div className="flex flex-col gap-[11px]">
+        <ul className="flex flex-col gap-[11px]">
           {items.map((item) => (
-            <a
-              key={item.name}
-              href={mq(item.q)}
-              target="_blank"
-              rel="noopener"
-              className="flex items-center gap-[14px] rounded-[16px] border border-[rgba(46,58,48,0.08)] bg-[#FBFAF6] p-4"
-            >
-              <IconTile icon={icon} />
-              <div className="flex-1">
-                <div className="text-[14px] font-bold text-[#2E3A30]">{item.name}</div>
-                <div className="mt-0.5 text-[12px] text-[#8a8a82]">{item.note}</div>
-              </div>
-              <CaretRight size={18} className="text-[#b6bbb0]" />
-            </a>
+            <li key={item.name}>
+              <a
+                href={mapsSearchUrl(item.q)}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-[14px] rounded-[16px] border border-[rgba(46,58,48,0.08)] bg-[#FBFAF6] p-4"
+              >
+                <IconTile icon={icon} />
+                <div className="flex-1">
+                  <div className="text-[14px] font-bold text-[#2E3A30]">{item.name}</div>
+                  <div className="mt-0.5 text-[12px] text-[#8a8a82]">{item.note}</div>
+                </div>
+                <CaretRight size={18} className="text-[#b6bbb0]" />
+              </a>
+            </li>
           ))}
-        </div>
+        </ul>
       </div>
     </div>
   );
@@ -328,40 +349,73 @@ function PlaceListScreen({
 
 function StepRow({ num, text }: { num: number; text: string }) {
   return (
-    <div className="flex items-start gap-[11px]">
+    <li className="flex items-start gap-[11px]">
       <div className="mt-px grid h-[22px] w-[22px] flex-none place-items-center rounded-full bg-[#2E3A30] text-[11px] font-bold text-white">
         {num}
       </div>
       <div className="text-[13px] leading-[1.5] text-[#3A463C]">{text}</div>
-    </div>
+    </li>
   );
 }
 
 export default function GuestGuide() {
-  const [screen, setScreen] = useState<ScreenKey>("home");
+  const screen = useSyncExternalStore(subscribeToHistory, screenFromHash, getServerScreen);
   const [copied, setCopied] = useState(false);
   const copyTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const paneRef = useRef<HTMLDivElement>(null);
+  const skipFocus = useRef(true);
+
+  useEffect(() => {
+    const onPopState = () => window.scrollTo(0, 0);
+    window.addEventListener("popstate", onPopState);
+    return () => {
+      window.removeEventListener("popstate", onPopState);
+      if (copyTimer.current) clearTimeout(copyTimer.current);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (skipFocus.current) {
+      skipFocus.current = false;
+      return;
+    }
+    paneRef.current?.focus({ preventScroll: true });
+  }, [screen]);
 
   function go(next: ScreenKey) {
-    setScreen(next);
-    history.replaceState(null, "", next === "home" ? "/" : "/#" + next);
-    window.scrollTo(0, 0);
+    window.history.pushState({ guide: true }, "", "#" + next);
+    window.dispatchEvent(new PopStateEvent("popstate"));
+  }
+
+  function goHome() {
+    if (window.history.state?.guide) {
+      window.history.back();
+    } else {
+      window.history.replaceState(null, "", window.location.pathname);
+      window.dispatchEvent(new PopStateEvent("popstate"));
+    }
   }
 
   function copyWifi() {
-    if (navigator.clipboard && WIFI_PASS) {
-      navigator.clipboard.writeText(WIFI_PASS).catch(() => {});
-    }
-    setCopied(true);
-    if (copyTimer.current) clearTimeout(copyTimer.current);
-    copyTimer.current = setTimeout(() => setCopied(false), 2000);
+    if (!navigator.clipboard) return;
+    navigator.clipboard
+      .writeText(WIFI_PASS)
+      .then(() => {
+        setCopied(true);
+        if (copyTimer.current) clearTimeout(copyTimer.current);
+        copyTimer.current = setTimeout(() => setCopied(false), 2000);
+      })
+      .catch(() => {});
   }
-
-  const goHome = () => go("home");
 
   return (
     <div className="relative mx-auto min-h-screen max-w-[440px] overflow-hidden bg-[#EFEDE4] shadow-[0_0_80px_-20px_rgba(31,40,35,0.35)]">
-      <div key={screen} className="animate-[rnfade_0.3s_ease_both]">
+      <div
+        key={screen}
+        ref={paneRef}
+        tabIndex={-1}
+        className="outline-none motion-safe:animate-[rnfade_0.3s_ease_both]"
+      >
         {screen === "home" && (
           <div>
             <div className="relative overflow-hidden bg-[#2E3A30] px-[26px] pt-[46px] pb-[34px] text-center">
@@ -379,9 +433,9 @@ export default function GuestGuide() {
                   <polygon points="52,114 120,8 188,114" fill="#A7B6A1" />
                   <polygon points="12,114 68,44 124,114" fill="#8A9E84" />
                 </svg>
-                <div className="text-[27px] font-extrabold tracking-[0.045em] text-[#F5F5F2]">
+                <h1 className="text-[27px] font-extrabold tracking-[0.045em] text-[#F5F5F2]">
                   ENTRE RÍO Y NIEBLA
-                </div>
+                </h1>
                 <div className="mt-[10px] ml-[0.46em] text-[9px] font-semibold tracking-[0.46em] text-[#8A9E84]">
                   CABAÑA · VALDIVIA
                 </div>
@@ -396,13 +450,13 @@ export default function GuestGuide() {
                 <div className="mb-[5px] text-[8px] font-semibold tracking-[0.18em] text-[#8A9E84]">
                   CHECK-IN
                 </div>
-                <div className="text-[16px] font-bold text-[#2E3A30]">15:00</div>
+                <div className="text-[16px] font-bold text-[#2E3A30]">{CHECKIN_TIME}</div>
               </div>
               <div className="flex-1 rounded-[14px] border border-[rgba(46,58,48,0.07)] bg-[#FBFAF6] px-[10px] py-3 text-center">
                 <div className="mb-[5px] text-[8px] font-semibold tracking-[0.18em] text-[#8A9E84]">
                   CHECK-OUT
                 </div>
-                <div className="text-[16px] font-bold text-[#2E3A30]">12:00</div>
+                <div className="text-[16px] font-bold text-[#2E3A30]">{CHECKOUT_TIME}</div>
               </div>
               <div className="flex-[1.3] rounded-[14px] border border-[rgba(46,58,48,0.07)] bg-[#FBFAF6] px-[10px] py-3 text-center">
                 <div className="mb-[5px] text-[8px] font-semibold tracking-[0.18em] text-[#8A9E84]">
@@ -425,7 +479,7 @@ export default function GuestGuide() {
               </div>
             </div>
 
-            <div className="px-[18px] pt-[14px] pb-[30px]">
+            <nav aria-label="Secciones de la guía" className="px-[18px] pt-[14px] pb-[30px]">
               <div className="grid grid-cols-2 gap-[11px]">
                 {cats.map((c) => (
                   <button
@@ -442,7 +496,7 @@ export default function GuestGuide() {
                   </button>
                 ))}
               </div>
-            </div>
+            </nav>
 
             <div className="px-[18px] pb-10 text-center font-serif text-[16px] font-medium italic text-[#5D6B5A]">
               Cualquier cosa, estoy para ayudarte. — Anita
@@ -474,7 +528,7 @@ export default function GuestGuide() {
                 className="mt-[14px] flex w-full cursor-pointer appearance-none items-center justify-center gap-[9px] rounded-[14px] border-none bg-[#8A9E84] p-4 text-[13px] font-bold tracking-[0.08em] text-white"
               >
                 {copied ? <Check size={18} /> : <Copy size={18} />}
-                <span>{copied ? "¡CLAVE COPIADA!" : "COPIAR CLAVE"}</span>
+                <span aria-live="polite">{copied ? "¡CLAVE COPIADA!" : "COPIAR CLAVE"}</span>
               </button>
               <p className="mx-2 mt-5 text-center text-[13px] leading-[1.7] text-[#5D6B5A]">
                 Copia la clave y pégala en la configuración Wi-Fi de tu teléfono. Señal disponible
@@ -493,35 +547,31 @@ export default function GuestGuide() {
                   <div className="mb-[7px] text-[9px] font-semibold tracking-[0.24em] text-[#8A9E84]">
                     LLEGADA
                   </div>
-                  <div className="text-[22px] font-bold">15:00</div>
+                  <div className="text-[22px] font-bold">{CHECKIN_TIME}</div>
                 </div>
                 <div className="flex-1 rounded-[16px] border border-[rgba(46,58,48,0.08)] bg-[#FBFAF6] p-[18px] text-center">
                   <div className="mb-[7px] text-[9px] font-semibold tracking-[0.24em] text-[#8A9E84]">
                     SALIDA
                   </div>
-                  <div className="text-[22px] font-bold">12:00</div>
+                  <div className="text-[22px] font-bold">{CHECKOUT_TIME}</div>
                 </div>
               </div>
               <div className="mb-[14px] text-[11px] font-semibold tracking-[0.3em] text-[#8A9E84]">
                 PASOS PARA ENTRAR
               </div>
-              <div className="flex flex-col gap-3">
-                {[
-                  "Avísame cuando estés en camino para coordinar tu llegada.",
-                  "El acceso es por el sector Pino Huacho 2; el camino tiene huellas de cemento y sube cualquier vehículo.",
-                  "Te enviaré el código de la cerradura el día de tu llegada. ¡Bienvenido!",
-                ].map((step, i) => (
-                  <div
-                    key={i}
+              <ol className="flex flex-col gap-3">
+                {checkinSteps.map((step, i) => (
+                  <li
+                    key={step}
                     className="flex gap-[14px] rounded-[14px] border border-[rgba(46,58,48,0.08)] bg-[#FBFAF6] p-4"
                   >
                     <div className="grid h-[26px] w-[26px] flex-none place-items-center rounded-full bg-[#2E3A30] text-[12px] font-bold text-white">
                       {i + 1}
                     </div>
                     <div className="text-[14px] leading-[1.5] text-[#3A463C]">{step}</div>
-                  </div>
+                  </li>
                 ))}
-              </div>
+              </ol>
               <div className="mt-[18px] flex items-center gap-3 rounded-[14px] bg-[#E9ECE5] px-4 py-[15px]">
                 <Car size={22} className="flex-none text-[#2E3A30]" />
                 <div className="text-[13px] leading-[1.4] font-medium text-[#3A463C]">
@@ -539,25 +589,29 @@ export default function GuestGuide() {
               <div>
                 {ruleSections.map((section) => (
                   <div key={section.title}>
-                    <div className="mt-6 mb-2 text-[11px] font-semibold tracking-[0.3em] text-[#8A9E84]">
+                    <h3 className="mt-6 mb-2 text-[11px] font-semibold tracking-[0.3em] text-[#8A9E84]">
                       {section.title.toUpperCase()}
-                    </div>
-                    {section.items.map((r) => (
-                      <div
-                        key={r.title}
-                        className="flex items-start gap-[13px] border-b border-[rgba(46,58,48,0.09)] py-[15px]"
-                      >
-                        <r.icon size={21} className="mt-px flex-none text-[#8A9E84]" />
-                        <div>
-                          <div className="text-[14px] font-semibold text-[#2E3A30]">{r.title}</div>
-                          {r.note ? (
-                            <div className="mt-0.5 text-[12.5px] leading-[1.5] text-[#8a8a82]">
-                              {r.note}
+                    </h3>
+                    <ul>
+                      {section.items.map((r) => (
+                        <li
+                          key={r.title}
+                          className="flex items-start gap-[13px] border-b border-[rgba(46,58,48,0.09)] py-[15px]"
+                        >
+                          <r.icon size={21} className="mt-px flex-none text-[#8A9E84]" />
+                          <div>
+                            <div className="text-[14px] font-semibold text-[#2E3A30]">
+                              {r.title}
                             </div>
-                          ) : null}
-                        </div>
-                      </div>
-                    ))}
+                            {r.note ? (
+                              <div className="mt-0.5 text-[12.5px] leading-[1.5] text-[#8a8a82]">
+                                {r.note}
+                              </div>
+                            ) : null}
+                          </div>
+                        </li>
+                      ))}
+                    </ul>
                   </div>
                 ))}
               </div>
@@ -582,7 +636,7 @@ export default function GuestGuide() {
               <a
                 href="https://www.google.com/maps/dir/?api=1&destination=-39.865443,-73.375001&travelmode=driving"
                 target="_blank"
-                rel="noopener"
+                rel="noopener noreferrer"
                 className="mt-3 flex w-full items-center justify-center gap-[10px] rounded-[14px] bg-[#2E3A30] p-4 text-[13px] font-bold tracking-[0.06em] text-[#F5F5F2]"
               >
                 <NavigationArrow size={18} />
@@ -614,27 +668,27 @@ export default function GuestGuide() {
               <p className="mb-[18px] text-[13px] leading-[1.6] text-[#5D6B5A]">
                 Guía rápida de los equipos de la cabaña. Sigue los pasos de cada uno.
               </p>
-              <div className="flex flex-col gap-3">
+              <ul className="flex flex-col gap-3">
                 {appliances.map((a) => (
-                  <div
+                  <li
                     key={a.title}
                     className="rounded-[16px] border border-[rgba(46,58,48,0.08)] bg-[#FBFAF6] px-[18px] py-4"
                   >
                     <div className="mb-[13px] flex items-center gap-[13px]">
                       <IconTile icon={a.icon} />
                       <div>
-                        <div className="text-[15px] font-bold text-[#2E3A30]">{a.title}</div>
+                        <h3 className="text-[15px] font-bold text-[#2E3A30]">{a.title}</h3>
                         <div className="mt-px text-[12px] text-[#8a8a82]">{a.subtitle}</div>
                       </div>
                     </div>
-                    <div className="flex flex-col gap-[9px]">
+                    <ol className="flex flex-col gap-[9px]">
                       {a.steps.map((step, i) => (
-                        <StepRow key={i} num={i + 1} text={step} />
+                        <StepRow key={step} num={i + 1} text={step} />
                       ))}
-                    </div>
-                  </div>
+                    </ol>
+                  </li>
                 ))}
-              </div>
+              </ul>
               <div className="mt-[18px] flex gap-3 rounded-[14px] bg-[#E9ECE5] px-4 py-[15px]">
                 <Question size={21} className="flex-none text-[#2E3A30]" />
                 <div className="text-[12.5px] leading-[1.5] text-[#3A463C]">
@@ -683,19 +737,19 @@ export default function GuestGuide() {
                 <span className="text-[11px] font-semibold tracking-[0.2em] text-[#A7B6A1]">
                   CHECK-OUT
                 </span>
-                <span className="text-[20px] font-bold">12:00</span>
+                <span className="text-[20px] font-bold">{CHECKOUT_TIME}</span>
               </div>
-              <div>
+              <ul>
                 {checkoutSteps.map((s) => (
-                  <div
+                  <li
                     key={s}
                     className="flex items-start gap-[13px] border-b border-[rgba(46,58,48,0.09)] py-[14px]"
                   >
                     <CheckCircle size={21} className="mt-px flex-none text-[#8A9E84]" />
                     <div className="text-[14px] leading-[1.5] font-medium text-[#3A463C]">{s}</div>
-                  </div>
+                  </li>
                 ))}
-              </div>
+              </ul>
               <p className="mx-1.5 mt-6 text-center font-serif text-[17px] leading-[1.5] font-medium italic text-[#5D6B5A]">
                 ¡Gracias por tu visita! Vuelve pronto.
               </p>
@@ -721,7 +775,7 @@ export default function GuestGuide() {
               <a
                 href={WHATSAPP_URL}
                 target="_blank"
-                rel="noopener"
+                rel="noopener noreferrer"
                 className="flex w-full items-center justify-center gap-[10px] rounded-[14px] bg-[#8A9E84] p-4 text-[13px] font-bold tracking-[0.06em] text-white"
               >
                 <WhatsappLogo size={20} />
