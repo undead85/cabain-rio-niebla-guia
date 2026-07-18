@@ -785,6 +785,9 @@ export default function GuestGuide() {
           </div>
         )}
       </div>
+      <footer className="-mt-4 pb-6 text-center text-[9px] font-semibold tracking-[0.3em] text-[#b6bbb0]">
+        v{process.env.NEXT_PUBLIC_APP_VERSION}
+      </footer>
     </div>
   );
 }
