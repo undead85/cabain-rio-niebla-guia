@@ -19,7 +19,7 @@ jobs:
         env:
           WIFI_PASS: ${{ secrets.WIFI_PASS }}
           PHONE_NUMBER: ${{ secrets.PHONE_NUMBER }}
-          WIFI_NETWORK: ${{ secrets.WIFI_NETWORK || 'WifiTelsur_EFE6' }}
+          WIFI_NETWORK: ${{ secrets.WIFI_NETWORK || '--' }}
         run: |
           sed -i "s/__WIFI_PASS__/$WIFI_PASS/g" src/components/GuestGuide.tsx
           sed -i "s/__PHONE_NUMBER__/$PHONE_NUMBER/g" src/components/GuestGuide.tsx
