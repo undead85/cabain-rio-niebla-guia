@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Montserrat, Cormorant_Garamond } from "next/font/google";
 import Script from "next/script";
+import { SITE_DESCRIPTION, SITE_TITLE } from "@/content/site";
 import "./globals.css";
 
 const montserrat = Montserrat({
@@ -17,9 +18,8 @@ const cormorant = Cormorant_Garamond({
 });
 
 export const metadata: Metadata = {
-  title: "Guía del Huésped · Entre Río y Niebla",
-  description:
-    "Guía de bienvenida de la cabaña Entre Río y Niebla, Valdivia. Todo lo que necesitas, a un toque.",
+  title: SITE_TITLE,
+  description: SITE_DESCRIPTION,
 };
 
 export default function RootLayout({

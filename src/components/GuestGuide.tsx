@@ -4,274 +4,50 @@ import Image from "next/image";
 import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import {
   ArrowLeft,
-  Bag,
   Car,
   CaretRight,
   ChatCircleDots,
   Check,
   CheckCircle,
-  CigaretteSlash,
-  Coffee,
-  Compass,
-  CookingPot,
   Copy,
-  Drop,
-  DropSlash,
-  Flame,
-  ForkKnife,
   Info,
-  Key,
-  Lightbulb,
-  MapPinLine,
   NavigationArrow,
-  Plant,
-  Plug,
-  Prohibit,
   Question,
-  Scroll,
-  ShoppingCartSimple,
-  Sparkle,
-  SuitcaseSimple,
-  TShirt,
-  TelevisionSimple,
-  ThermometerSimple,
-  Trash,
   WhatsappLogo,
   WifiHigh,
-  Wind,
   type Icon,
 } from "@phosphor-icons/react";
 import cerroPhoto from "../../public/images/cerro-indicaciones.png";
-
-type ScreenKey =
-  | "home"
-  | "wifi"
-  | "checkin"
-  | "rules"
-  | "location"
-  | "appliances"
-  | "markets"
-  | "food"
-  | "explore"
-  | "checkout"
-  | "contact";
-
-const WIFI_NETWORK = "__WIFI_NETWORK__";
-const WIFI_PASS = "__WIFI_PASS__";
-const CHECKIN_TIME = "15:00";
-const CHECKOUT_TIME = "12:00";
-const WHATSAPP_URL =
-  "https://wa.me/__PHONE_NUMBER__?text=Hola%20Anita%2C%20te%20escribo%20desde%20la%20caba%C3%B1a%20R%C3%ADo%20y%20Niebla.";
-
-const cats: { key: ScreenKey; icon: Icon; label: string; desc: string }[] = [
-  { key: "wifi", icon: WifiHigh, label: "Wi-Fi", desc: "Red y clave" },
-  { key: "checkin", icon: Key, label: "Check-in", desc: "Acceso y horarios" },
-  { key: "rules", icon: Scroll, label: "Reglas", desc: "Normas del hogar" },
-  { key: "location", icon: MapPinLine, label: "Cómo volver", desc: "Mapa y auto" },
-  { key: "appliances", icon: Plug, label: "Artefactos", desc: "Cómo usarlos" },
-  { key: "markets", icon: ShoppingCartSimple, label: "Supermercados", desc: "Dónde abastecerse" },
-  { key: "food", icon: ForkKnife, label: "Dónde comer", desc: "Recomendados" },
-  { key: "explore", icon: Compass, label: "Qué hacer", desc: "Valdivia y más" },
-  { key: "checkout", icon: SuitcaseSimple, label: "Antes de irte", desc: "Check-out" },
-  { key: "contact", icon: ChatCircleDots, label: "Contacto", desc: "Escríbeme" },
-];
-
-const ruleSections: {
-  title: string;
-  items: { icon: Icon; title: string; note: string }[];
-}[] = [
-  {
-    title: "Normas Generales",
-    items: [
-      {
-        icon: CigaretteSlash,
-        title: "Área de fumadores en terraza",
-        note: "Las colillas deben depositarse en una bolsa y dejarse en el basurero de la terraza.",
-      },
-      {
-        icon: Prohibit,
-        title: "No botar papeles al inodoro",
-        note: "El baño funciona con fosa séptica. Por favor, no arrojes papel ni otros residuos al inodoro, ya que se tapa. Usa el basurero.",
-      },
-      {
-        icon: DropSlash,
-        title: "Para desmaquillar, no uses las toallas blancas",
-        note: "Usa las toallitas desmaquillantes. Las encontrarás en el mueble del baño.",
-      },
-      {
-        icon: Plant,
-        title: "Las plantas son reales — cuídalas como en casa",
-        note: "Tanto las de interior como las del jardín.",
-      },
-    ],
-  },
-  {
-    title: "Cocina y Áreas Comunes",
-    items: [
-      {
-        icon: CookingPot,
-        title: "Deja la cocina limpia",
-        note: "La loza, el horno y las ollas deben quedar limpios después de usarlos.",
-      },
-      {
-        icon: Flame,
-        title: "Limpia la parrilla",
-        note: "Si la utilizas, debe quedar limpia como la encontraste.",
-      },
-    ],
-  },
-  {
-    title: "Antes de Retirarte",
-    items: [
-      {
-        icon: Trash,
-        title: "Basura al contenedor de la terraza",
-        note: "La basura del baño y la cocina va en el basurero grande al costado de la terraza.",
-      },
-      {
-        icon: Lightbulb,
-        title: "Apaga luces, TV, cocina y calefacción al salir",
-        note: "",
-      },
-      {
-        icon: Drop,
-        title: "Cierra las llaves",
-        note: "Revisa que no haya agua corriendo en las llaves de la cabaña y el patio.",
-      },
-      {
-        icon: Bag,
-        title: "No olvides tus pertenencias",
-        note: "Podemos enviarte lo que quede, aunque el envío va a tu cargo.",
-      },
-    ],
-  },
-  {
-    title: "Uso de la Plancha",
-    items: [
-      {
-        icon: Wind,
-        title: "Plancha a vapor disponible",
-        note: "Cuenta con su manual de uso. Si no sabes cómo utilizarla, no dudes en consultarme.",
-      },
-    ],
-  },
-  {
-    title: "Limpieza Adicional",
-    items: [
-      {
-        icon: Sparkle,
-        title: "Déjala como la encontraste",
-        note: "En caso de requerir limpieza adicional significativa al finalizar la estadía, se aplicará un cargo proporcional al trabajo extra ($80.000). Esto incluye dejar la cabaña con suciedad excesiva, basura acumulada, ropa de cama o toallas manchadas, o cualquier daño que requiera limpieza profunda.",
-      },
-    ],
-  },
-];
-
-const appliances: { icon: Icon; title: string; subtitle: string; steps: string[] }[] = [
-  {
-    icon: ThermometerSimple,
-    title: "Calefacción",
-    subtitle: "Estufa eléctrica / split",
-    steps: [
-      "Enciende desde el control o el botón de encendido.",
-      "Ajusta la temperatura a unos 21–22°C.",
-      "Apágala al salir o al dormir para ahorrar energía.",
-    ],
-  },
-  {
-    icon: TShirt,
-    title: "Plancha a vapor",
-    subtitle: "En el clóset del pasillo",
-    steps: [
-      "Llena el depósito con agua hasta la marca.",
-      "Conéctala y espera 1–2 minutos a que caliente.",
-      "Usa el gatillo para soltar el vapor. Vacíala al terminar.",
-    ],
-  },
-  {
-    icon: Coffee,
-    title: "Hervidor",
-    subtitle: "Sobre la encimera",
-    steps: [
-      "Llena con agua entre el mínimo y el máximo.",
-      "Apóyalo en la base y presiona el interruptor.",
-      "Se apaga solo al hervir.",
-    ],
-  },
-  {
-    icon: TelevisionSimple,
-    title: "Televisor",
-    subtitle: "Smart TV con streaming",
-    steps: [
-      "Enciende con el control; entrada HDMI por defecto.",
-      `Conéctate al Wi-Fi ${WIFI_NETWORK} si lo pide.`,
-      "Cierra tu sesión de las apps antes de irte.",
-    ],
-  },
-];
+import {
+  CHECKIN_TIME,
+  CHECKOUT_TIME,
+  WHATSAPP_URL,
+  WIFI_NETWORK,
+  WIFI_PASS,
+} from "@/content/site";
+import {
+  appliancesContent,
+  categories,
+  checkinContent,
+  checkoutContent,
+  contactContent,
+  exploreContent,
+  foodContent,
+  homeContent,
+  locationContent,
+  marketsContent,
+  rulesContent,
+  wifiContent,
+} from "@/content/guide";
+import type { Place, ScreenKey } from "@/content/types";
 
 function mapsSearchUrl(q: string) {
   return "https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent(q);
 }
 
-const markets = [
-  { name: "Jumbo Valdivia", note: "El más grande, de todo", q: "Jumbo Valdivia" },
-  { name: "Líder Valdivia", note: "Variedad y buen precio", q: "Lider Valdivia" },
-  { name: "Unimarc", note: "Céntrico y práctico", q: "Unimarc Valdivia" },
-  { name: "Santa Isabel", note: "Compras rápidas", q: "Santa Isabel Valdivia" },
-  { name: "Mercado Fluvial", note: "Pescados y mariscos frescos", q: "Mercado Fluvial Valdivia" },
-];
-
-const food = [
-  {
-    name: "Cervecería Kunstmann",
-    note: "Cerveza artesanal y cocina alemana",
-    q: "Cerveceria Kunstmann Valdivia",
-  },
-  { name: "Café Haussmann", note: "Crudos y kuchen, un clásico", q: "Cafe Haussmann Valdivia" },
-  { name: "Entrelagos", note: "Chocolates, café y onces", q: "Entrelagos Valdivia" },
-  { name: "La Última Frontera", note: "Bar bohemio y sándwiches", q: "La Ultima Frontera Valdivia" },
-  { name: "El Growler", note: "Cervecería artesanal y pizzas", q: "El Growler Valdivia" },
-  { name: "Sello Propio", note: "Cocina de autor", q: "Sello Propio Cocina Valdivia" },
-];
-
-const explore = [
-  { name: "Mercado Fluvial", note: "Lobos marinos junto al río", q: "Mercado Fluvial Valdivia" },
-  { name: "Costanera de Valdivia", note: "Paseo a orillas del río", q: "Costanera Valdivia" },
-  {
-    name: "Jardín Botánico UACh",
-    note: "Naturaleza en Isla Teja",
-    q: "Jardin Botanico Universidad Austral Valdivia",
-  },
-  { name: "Parque Saval", note: "Lagunas y senderos", q: "Parque Saval Valdivia" },
-  {
-    name: "Castillos de Niebla y Corral",
-    note: "Fuertes históricos y paseo en barco",
-    q: "Castillo de Niebla Valdivia",
-  },
-  {
-    name: "Museo de Arte Contemporáneo",
-    note: "Arte en Isla Teja",
-    q: "Museo de Arte Contemporaneo Valdivia",
-  },
-];
-
-const checkinSteps = [
-  "Avísame cuando estés en camino para coordinar tu llegada.",
-  "El acceso es por el sector Pino Huacho 2; el camino tiene huellas de cemento y sube cualquier vehículo.",
-  "Te enviaré el código de la cerradura el día de tu llegada. ¡Bienvenido!",
-];
-
-const checkoutSteps = [
-  "Deja las llaves donde acordamos al ingresar.",
-  "Apaga luces, calefacción y cierra ventanas.",
-  "Saca la basura al lugar indicado.",
-  "Deja la loza limpia; del resto me encargo yo.",
-];
-
 function screenFromHash(): ScreenKey {
   const hash = window.location.hash.slice(1);
-  return cats.some((c) => c.key === hash) ? (hash as ScreenKey) : "home";
+  return categories.some((c) => c.key === hash) ? (hash as ScreenKey) : "home";
 }
 
 function subscribeToHistory(callback: () => void) {
@@ -314,7 +90,7 @@ function PlaceListScreen({
 }: {
   title: string;
   intro: string;
-  items: { name: string; note: string; q: string }[];
+  items: Place[];
   icon: Icon;
   onBack: () => void;
 }) {
@@ -422,7 +198,7 @@ export default function GuestGuide() {
               <div className="pointer-events-none absolute -bottom-[40%] -left-[20%] -right-[20%] h-[90%] bg-[radial-gradient(60%_100%_at_50%_100%,rgba(167,182,161,0.28),transparent_65%)]" />
               <div className="relative">
                 <div className="ml-[0.46em] text-[10px] font-semibold tracking-[0.46em] text-[#8A9E84]">
-                  GUÍA DEL HUÉSPED
+                  {homeContent.kicker}
                 </div>
                 <svg
                   viewBox="0 0 200 116"
@@ -434,13 +210,13 @@ export default function GuestGuide() {
                   <polygon points="12,114 68,44 124,114" fill="#8A9E84" />
                 </svg>
                 <h1 className="text-[27px] font-extrabold tracking-[0.045em] text-[#F5F5F2]">
-                  ENTRE RÍO Y NIEBLA
+                  {homeContent.title}
                 </h1>
                 <div className="mt-[10px] ml-[0.46em] text-[9px] font-semibold tracking-[0.46em] text-[#8A9E84]">
-                  CABAÑA · VALDIVIA
+                  {homeContent.tagline}
                 </div>
                 <p className="mx-auto mt-[22px] max-w-[300px] font-serif text-[19px] leading-[1.45] font-medium italic text-[#A7B6A1]">
-                  Qué bueno tenerte aquí. Todo lo que necesitas, a un toque.
+                  {homeContent.welcome}
                 </p>
               </div>
             </div>
@@ -448,19 +224,19 @@ export default function GuestGuide() {
             <div className="flex gap-2 px-[18px] pt-[18px] pb-1">
               <div className="flex-1 rounded-[14px] border border-[rgba(46,58,48,0.07)] bg-[#FBFAF6] px-[10px] py-3 text-center">
                 <div className="mb-[5px] text-[8px] font-semibold tracking-[0.18em] text-[#8A9E84]">
-                  CHECK-IN
+                  {homeContent.checkinLabel}
                 </div>
                 <div className="text-[16px] font-bold text-[#2E3A30]">{CHECKIN_TIME}</div>
               </div>
               <div className="flex-1 rounded-[14px] border border-[rgba(46,58,48,0.07)] bg-[#FBFAF6] px-[10px] py-3 text-center">
                 <div className="mb-[5px] text-[8px] font-semibold tracking-[0.18em] text-[#8A9E84]">
-                  CHECK-OUT
+                  {homeContent.checkoutLabel}
                 </div>
                 <div className="text-[16px] font-bold text-[#2E3A30]">{CHECKOUT_TIME}</div>
               </div>
               <div className="flex-[1.3] rounded-[14px] border border-[rgba(46,58,48,0.07)] bg-[#FBFAF6] px-[10px] py-3 text-center">
                 <div className="mb-[5px] text-[8px] font-semibold tracking-[0.18em] text-[#8A9E84]">
-                  WI-FI
+                  {homeContent.wifiLabel}
                 </div>
                 <div className="text-[13px] font-bold text-[#2E3A30]">{WIFI_NETWORK}</div>
               </div>
@@ -470,7 +246,7 @@ export default function GuestGuide() {
               <div className="relative h-[170px] w-full overflow-hidden rounded-[16px] bg-[#E9ECE5]">
                 <Image
                   src="/images/cabana.avif"
-                  alt="Cabaña Entre Río y Niebla"
+                  alt={homeContent.photoAlt}
                   priority
                   fill
                   sizes="(max-width: 440px) 100vw, 404px"
@@ -479,9 +255,9 @@ export default function GuestGuide() {
               </div>
             </div>
 
-            <nav aria-label="Secciones de la guía" className="px-[18px] pt-[14px] pb-[30px]">
+            <nav aria-label={homeContent.navLabel} className="px-[18px] pt-[14px] pb-[30px]">
               <div className="grid grid-cols-2 gap-[11px]">
-                {cats.map((c) => (
+                {categories.map((c) => (
                   <button
                     key={c.key}
                     type="button"
@@ -499,26 +275,26 @@ export default function GuestGuide() {
             </nav>
 
             <div className="px-[18px] pb-10 text-center font-serif text-[16px] font-medium italic text-[#5D6B5A]">
-              Cualquier cosa, estoy para ayudarte. — Anita
+              {homeContent.farewell}
             </div>
           </div>
         )}
 
         {screen === "wifi" && (
           <div>
-            <SubHeader title="Wi-Fi" onBack={goHome} />
+            <SubHeader title={wifiContent.title} onBack={goHome} />
             <div className="px-5 pt-6 pb-10">
               <div className="rounded-[20px] bg-[#2E3A30] px-[26px] py-[30px] text-center text-[#F5F5F2]">
                 <div className="mx-auto mb-[18px] grid h-[54px] w-[54px] place-items-center rounded-[16px] bg-[rgba(167,182,161,0.18)] text-[#A7B6A1]">
                   <WifiHigh size={28} />
                 </div>
                 <div className="mb-2 text-[10px] font-semibold tracking-[0.34em] text-[#8A9E84]">
-                  RED
+                  {wifiContent.networkLabel}
                 </div>
                 <div className="text-[24px] font-bold tracking-[0.01em]">{WIFI_NETWORK}</div>
                 <div className="my-[22px] h-px bg-[rgba(138,158,132,0.25)]" />
                 <div className="mb-2 text-[10px] font-semibold tracking-[0.34em] text-[#8A9E84]">
-                  CLAVE
+                  {wifiContent.passLabel}
                 </div>
                 <div className="text-[24px] font-bold tracking-[0.04em]">{WIFI_PASS}</div>
               </div>
@@ -528,11 +304,10 @@ export default function GuestGuide() {
                 className="mt-[14px] flex w-full cursor-pointer appearance-none items-center justify-center gap-[9px] rounded-[14px] border-none bg-[#8A9E84] p-4 text-[13px] font-bold tracking-[0.08em] text-white"
               >
                 {copied ? <Check size={18} /> : <Copy size={18} />}
-                <span aria-live="polite">{copied ? "¡CLAVE COPIADA!" : "COPIAR CLAVE"}</span>
+                <span aria-live="polite">{copied ? wifiContent.copiedCta : wifiContent.copyCta}</span>
               </button>
               <p className="mx-2 mt-5 text-center text-[13px] leading-[1.7] text-[#5D6B5A]">
-                Copia la clave y pégala en la configuración Wi-Fi de tu teléfono. Señal disponible
-                en toda la cabaña y la terraza.
+                {wifiContent.hint}
               </p>
             </div>
           </div>
@@ -540,27 +315,27 @@ export default function GuestGuide() {
 
         {screen === "checkin" && (
           <div>
-            <SubHeader title="Check-in & acceso" onBack={goHome} />
+            <SubHeader title={checkinContent.title} onBack={goHome} />
             <div className="px-5 pt-6 pb-10">
               <div className="mb-5 flex gap-[11px]">
                 <div className="flex-1 rounded-[16px] border border-[rgba(46,58,48,0.08)] bg-[#FBFAF6] p-[18px] text-center">
                   <div className="mb-[7px] text-[9px] font-semibold tracking-[0.24em] text-[#8A9E84]">
-                    LLEGADA
+                    {checkinContent.arrivalLabel}
                   </div>
                   <div className="text-[22px] font-bold">{CHECKIN_TIME}</div>
                 </div>
                 <div className="flex-1 rounded-[16px] border border-[rgba(46,58,48,0.08)] bg-[#FBFAF6] p-[18px] text-center">
                   <div className="mb-[7px] text-[9px] font-semibold tracking-[0.24em] text-[#8A9E84]">
-                    SALIDA
+                    {checkinContent.departureLabel}
                   </div>
                   <div className="text-[22px] font-bold">{CHECKOUT_TIME}</div>
                 </div>
               </div>
               <div className="mb-[14px] text-[11px] font-semibold tracking-[0.3em] text-[#8A9E84]">
-                PASOS PARA ENTRAR
+                {checkinContent.stepsLabel}
               </div>
               <ol className="flex flex-col gap-3">
-                {checkinSteps.map((step, i) => (
+                {checkinContent.steps.map((step, i) => (
                   <li
                     key={step}
                     className="flex gap-[14px] rounded-[14px] border border-[rgba(46,58,48,0.08)] bg-[#FBFAF6] p-4"
@@ -575,7 +350,7 @@ export default function GuestGuide() {
               <div className="mt-[18px] flex items-center gap-3 rounded-[14px] bg-[#E9ECE5] px-4 py-[15px]">
                 <Car size={22} className="flex-none text-[#2E3A30]" />
                 <div className="text-[13px] leading-[1.4] font-medium text-[#3A463C]">
-                  Estacionamiento gratuito en la propiedad.
+                  {checkinContent.parkingNote}
                 </div>
               </div>
             </div>
@@ -584,10 +359,10 @@ export default function GuestGuide() {
 
         {screen === "rules" && (
           <div>
-            <SubHeader title="Reglas del hogar" onBack={goHome} />
+            <SubHeader title={rulesContent.title} onBack={goHome} />
             <div className="px-5 pt-6 pb-10">
               <div>
-                {ruleSections.map((section) => (
+                {rulesContent.sections.map((section) => (
                   <div key={section.title}>
                     <h3 className="mt-6 mb-2 text-[11px] font-semibold tracking-[0.3em] text-[#8A9E84]">
                       {section.title.toUpperCase()}
@@ -616,7 +391,7 @@ export default function GuestGuide() {
                 ))}
               </div>
               <p className="mx-1.5 mt-6 text-center font-serif text-[16px] leading-[1.5] font-medium italic text-[#5D6B5A]">
-                Gracias por cuidar este lugar como si fuera tuyo.
+                {rulesContent.farewell}
               </p>
             </div>
           </div>
@@ -624,37 +399,37 @@ export default function GuestGuide() {
 
         {screen === "location" && (
           <div>
-            <SubHeader title="Cómo volver" onBack={goHome} />
+            <SubHeader title={locationContent.title} onBack={goHome} />
             <div className="px-5 pt-5 pb-10">
               <div className="mt-[14px] rounded-[16px] border border-[rgba(46,58,48,0.08)] bg-[#FBFAF6] p-5">
                 <div className="mb-[7px] text-[10px] font-semibold tracking-[0.3em] text-[#8A9E84]">
-                  DIRECCIÓN
+                  {locationContent.addressLabel}
                 </div>
-                <div className="text-[16px] font-semibold text-[#2E3A30]">Sector Pino Huacho 2</div>
-                <div className="mt-0.5 text-[13px] text-[#8a8a82]">Valdivia, Los Ríos · Chile</div>
+                <div className="text-[16px] font-semibold text-[#2E3A30]">
+                  {locationContent.address}
+                </div>
+                <div className="mt-0.5 text-[13px] text-[#8a8a82]">
+                  {locationContent.addressDetail}
+                </div>
               </div>
               <a
-                href="https://www.google.com/maps/dir/?api=1&destination=-39.865443,-73.375001&travelmode=driving"
+                href={locationContent.directionsUrl}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="mt-3 flex w-full items-center justify-center gap-[10px] rounded-[14px] bg-[#2E3A30] p-4 text-[13px] font-bold tracking-[0.06em] text-[#F5F5F2]"
               >
                 <NavigationArrow size={18} />
-                CÓMO VOLVER EN GOOGLE MAPS
+                {locationContent.directionsCta}
               </a>
               <Image
                 src={cerroPhoto}
-                alt="Indicaciones para transitar por el cerro"
+                alt={locationContent.photoAlt}
                 className="mt-[14px] block w-full rounded-[16px]"
               />
               <div className="mt-[14px] flex gap-3 rounded-[14px] bg-[#E9ECE5] px-4 py-[15px]">
                 <Info size={21} className="flex-none text-[#2E3A30]" />
                 <div className="text-[12.5px] leading-[1.5] text-[#3A463C]">
-                  El camino de subida es parte del encanto: tranquilo y rodeado de naturaleza.
-                  Algunos tramos son angostos y pasa un auto a la vez, así que te recomendamos ir
-                  con calma. Por ley, quien sube tiene la preferencia, pero aquí nos cuidamos entre
-                  vecinos: si ves que alguien ya viene bajando a mitad de camino, regálale la
-                  pasada. Manejando despacio y con atención, llegarás sin problema.
+                  {locationContent.roadNote}
                 </div>
               </div>
             </div>
@@ -663,13 +438,13 @@ export default function GuestGuide() {
 
         {screen === "appliances" && (
           <div>
-            <SubHeader title="Cómo usar los artefactos" onBack={goHome} />
+            <SubHeader title={appliancesContent.title} onBack={goHome} />
             <div className="px-5 pt-5 pb-10">
               <p className="mb-[18px] text-[13px] leading-[1.6] text-[#5D6B5A]">
-                Guía rápida de los equipos de la cabaña. Sigue los pasos de cada uno.
+                {appliancesContent.intro}
               </p>
               <ul className="flex flex-col gap-3">
-                {appliances.map((a) => (
+                {appliancesContent.items.map((a) => (
                   <li
                     key={a.title}
                     className="rounded-[16px] border border-[rgba(46,58,48,0.08)] bg-[#FBFAF6] px-[18px] py-4"
@@ -692,7 +467,7 @@ export default function GuestGuide() {
               <div className="mt-[18px] flex gap-3 rounded-[14px] bg-[#E9ECE5] px-4 py-[15px]">
                 <Question size={21} className="flex-none text-[#2E3A30]" />
                 <div className="text-[12.5px] leading-[1.5] text-[#3A463C]">
-                  ¿Algo no funciona o tienes dudas? Escríbeme por WhatsApp y te ayudo.
+                  {appliancesContent.helpNote}
                 </div>
               </div>
             </div>
@@ -701,46 +476,46 @@ export default function GuestGuide() {
 
         {screen === "markets" && (
           <PlaceListScreen
-            title="Supermercados"
-            intro="Para abastecerte en Valdivia. Toca para abrir en Google Maps."
-            items={markets}
-            icon={ShoppingCartSimple}
+            title={marketsContent.title}
+            intro={marketsContent.intro}
+            items={marketsContent.items}
+            icon={marketsContent.icon}
             onBack={goHome}
           />
         )}
 
         {screen === "food" && (
           <PlaceListScreen
-            title="Dónde comer"
-            intro="Nuestros favoritos en Valdivia. Toca para ver en el mapa."
-            items={food}
-            icon={ForkKnife}
+            title={foodContent.title}
+            intro={foodContent.intro}
+            items={foodContent.items}
+            icon={foodContent.icon}
             onBack={goHome}
           />
         )}
 
         {screen === "explore" && (
           <PlaceListScreen
-            title="Qué hacer"
-            intro="Lo mejor de Valdivia y sus alrededores."
-            items={explore}
-            icon={Compass}
+            title={exploreContent.title}
+            intro={exploreContent.intro}
+            items={exploreContent.items}
+            icon={exploreContent.icon}
             onBack={goHome}
           />
         )}
 
         {screen === "checkout" && (
           <div>
-            <SubHeader title="Antes de irte" onBack={goHome} />
+            <SubHeader title={checkoutContent.title} onBack={goHome} />
             <div className="px-5 pt-6 pb-10">
               <div className="mb-5 flex items-center justify-between rounded-[16px] bg-[#2E3A30] px-5 py-[18px] text-[#F5F5F2]">
                 <span className="text-[11px] font-semibold tracking-[0.2em] text-[#A7B6A1]">
-                  CHECK-OUT
+                  {checkoutContent.checkoutLabel}
                 </span>
                 <span className="text-[20px] font-bold">{CHECKOUT_TIME}</span>
               </div>
               <ul>
-                {checkoutSteps.map((s) => (
+                {checkoutContent.steps.map((s) => (
                   <li
                     key={s}
                     className="flex items-start gap-[13px] border-b border-[rgba(46,58,48,0.09)] py-[14px]"
@@ -751,7 +526,7 @@ export default function GuestGuide() {
                 ))}
               </ul>
               <p className="mx-1.5 mt-6 text-center font-serif text-[17px] leading-[1.5] font-medium italic text-[#5D6B5A]">
-                ¡Gracias por tu visita! Vuelve pronto.
+                {checkoutContent.farewell}
               </p>
             </div>
           </div>
@@ -759,18 +534,19 @@ export default function GuestGuide() {
 
         {screen === "contact" && (
           <div>
-            <SubHeader title="Contacto" onBack={goHome} />
+            <SubHeader title={contactContent.title} onBack={goHome} />
             <div className="px-5 pt-[30px] pb-10 text-center">
               <div className="mx-auto mb-[18px] grid h-[72px] w-[72px] place-items-center rounded-full bg-[#2E3A30] text-[#A7B6A1]">
                 <ChatCircleDots size={34} />
               </div>
-              <div className="font-serif text-[26px] font-medium text-[#2E3A30]">Anita</div>
+              <div className="font-serif text-[26px] font-medium text-[#2E3A30]">
+                {contactContent.name}
+              </div>
               <div className="mt-1 text-[10px] font-semibold tracking-[0.3em] text-[#8A9E84]">
-                TU ANFITRIONA
+                {contactContent.role}
               </div>
               <p className="mx-auto mt-[18px] mb-[26px] max-w-[280px] text-[14px] leading-[1.6] text-[#5D6B5A]">
-                Esta guía responde casi todo, pero si necesitas algo, escríbeme por WhatsApp. Estoy
-                para ayudarte.
+                {contactContent.message}
               </p>
               <a
                 href={WHATSAPP_URL}
@@ -779,7 +555,7 @@ export default function GuestGuide() {
                 className="flex w-full items-center justify-center gap-[10px] rounded-[14px] bg-[#8A9E84] p-4 text-[13px] font-bold tracking-[0.06em] text-white"
               >
                 <WhatsappLogo size={20} />
-                ESCRIBIR POR WHATSAPP
+                {contactContent.cta}
               </a>
             </div>
           </div>
