@@ -7,12 +7,12 @@ interface SubHeaderProps {
 
 export default function SubHeader({ title, onBack }: SubHeaderProps) {
   return (
-    <div className="sticky top-0 z-[5] flex items-center gap-[14px] bg-[#2E3A30] p-[18px] text-[#F5F5F2]">
+    <div className="sticky top-0 z-[5] flex items-center gap-[14px] bg-primary p-[18px] text-cream">
       <button
         type="button"
         onClick={onBack}
         aria-label="Volver al inicio"
-        className="grid h-[38px] w-[38px] cursor-pointer appearance-none place-items-center rounded-[11px] border-none bg-[rgba(247,247,242,0.1)] text-[#F5F5F2]"
+        className="grid h-[38px] w-[38px] cursor-pointer appearance-none place-items-center rounded-[11px] border-none bg-cream/10 text-cream"
       >
         <ArrowLeft size={22} />
       </button>

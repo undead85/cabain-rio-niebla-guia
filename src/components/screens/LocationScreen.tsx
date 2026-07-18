@@ -13,18 +13,18 @@ export default function LocationScreen({ onBack }: LocationScreenProps) {
     <div>
       <SubHeader title={locationContent.title} onBack={onBack} />
       <div className="px-5 pt-5 pb-10">
-        <div className="mt-[14px] rounded-[16px] border border-[rgba(46,58,48,0.08)] bg-[#FBFAF6] p-5">
-          <div className="mb-[7px] text-[10px] font-semibold tracking-[0.3em] text-[#8A9E84]">
+        <div className="mt-[14px] rounded-[16px] border border-primary/8 bg-surface p-5">
+          <div className="mb-[7px] text-[10px] font-semibold tracking-[0.3em] text-accent">
             {locationContent.addressLabel}
           </div>
-          <div className="text-[16px] font-semibold text-[#2E3A30]">{locationContent.address}</div>
-          <div className="mt-0.5 text-[13px] text-[#8a8a82]">{locationContent.addressDetail}</div>
+          <div className="text-[16px] font-semibold text-primary">{locationContent.address}</div>
+          <div className="mt-0.5 text-[13px] text-muted-foreground">{locationContent.addressDetail}</div>
         </div>
         <a
           href={locationContent.directionsUrl}
           target="_blank"
           rel="noopener noreferrer"
-          className="mt-3 flex w-full items-center justify-center gap-[10px] rounded-[14px] bg-[#2E3A30] p-4 text-[13px] font-bold tracking-[0.06em] text-[#F5F5F2]"
+          className="mt-3 flex w-full items-center justify-center gap-[10px] rounded-[14px] bg-primary p-4 text-[13px] font-bold tracking-[0.06em] text-cream"
         >
           <NavigationArrow size={18} />
           {locationContent.directionsCta}
@@ -34,9 +34,9 @@ export default function LocationScreen({ onBack }: LocationScreenProps) {
           alt={locationContent.photoAlt}
           className="mt-[14px] block w-full rounded-[16px]"
         />
-        <div className="mt-[14px] flex gap-3 rounded-[14px] bg-[#E9ECE5] px-4 py-[15px]">
-          <Info size={21} className="flex-none text-[#2E3A30]" />
-          <div className="text-[12.5px] leading-[1.5] text-[#3A463C]">
+        <div className="mt-[14px] flex gap-3 rounded-[14px] bg-muted px-4 py-[15px]">
+          <Info size={21} className="flex-none text-primary" />
+          <div className="text-[12.5px] leading-[1.5] text-foreground">
             {locationContent.roadNote}
           </div>
         </div>

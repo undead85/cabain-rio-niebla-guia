@@ -13,20 +13,20 @@ export default function AppliancesScreen({ onBack }: AppliancesScreenProps) {
     <div>
       <SubHeader title={appliancesContent.title} onBack={onBack} />
       <div className="px-5 pt-5 pb-10">
-        <p className="mb-[18px] text-[13px] leading-[1.6] text-[#5D6B5A]">
+        <p className="mb-[18px] text-[13px] leading-[1.6] text-subtle">
           {appliancesContent.intro}
         </p>
         <ul className="flex flex-col gap-3">
           {appliancesContent.items.map((a) => (
             <li
               key={a.title}
-              className="rounded-[16px] border border-[rgba(46,58,48,0.08)] bg-[#FBFAF6] px-[18px] py-4"
+              className="rounded-[16px] border border-primary/8 bg-surface px-[18px] py-4"
             >
               <div className="mb-[13px] flex items-center gap-[13px]">
                 <IconTile icon={a.icon} />
                 <div>
-                  <h3 className="text-[15px] font-bold text-[#2E3A30]">{a.title}</h3>
-                  <div className="mt-px text-[12px] text-[#8a8a82]">{a.subtitle}</div>
+                  <h3 className="text-[15px] font-bold text-primary">{a.title}</h3>
+                  <div className="mt-px text-[12px] text-muted-foreground">{a.subtitle}</div>
                 </div>
               </div>
               <ol className="flex flex-col gap-[9px]">
@@ -37,9 +37,9 @@ export default function AppliancesScreen({ onBack }: AppliancesScreenProps) {
             </li>
           ))}
         </ul>
-        <div className="mt-[18px] flex gap-3 rounded-[14px] bg-[#E9ECE5] px-4 py-[15px]">
-          <Question size={21} className="flex-none text-[#2E3A30]" />
-          <div className="text-[12.5px] leading-[1.5] text-[#3A463C]">
+        <div className="mt-[18px] flex gap-3 rounded-[14px] bg-muted px-4 py-[15px]">
+          <Question size={21} className="flex-none text-primary" />
+          <div className="text-[12.5px] leading-[1.5] text-foreground">
             {appliancesContent.helpNote}
           </div>
         </div>

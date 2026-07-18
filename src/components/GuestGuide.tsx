@@ -59,7 +59,7 @@ export default function GuestGuide() {
   }
 
   return (
-    <div className="relative mx-auto min-h-screen max-w-[440px] overflow-hidden bg-[#EFEDE4] shadow-[0_0_80px_-20px_rgba(31,40,35,0.35)]">
+    <div className="relative mx-auto min-h-screen max-w-[440px] overflow-hidden bg-background shadow-frame">
       <div
         key={screen}
         ref={paneRef}
@@ -78,7 +78,7 @@ export default function GuestGuide() {
         {screen === "checkout" && <CheckoutScreen onBack={goHome} />}
         {screen === "contact" && <ContactScreen onBack={goHome} />}
       </div>
-      <footer className="-mt-4 pb-6 text-center text-[9px] font-semibold tracking-[0.3em] text-[#b6bbb0]">
+      <footer className="-mt-4 pb-6 text-center text-[9px] font-semibold tracking-[0.3em] text-faint">
         v{process.env.NEXT_PUBLIC_APP_VERSION}
       </footer>
     </div>

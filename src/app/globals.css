@@ -5,6 +5,31 @@
   --font-serif: var(--font-cormorant);
 }
 
+@theme {
+  --color-primary: #2e3a30;
+  --color-foreground: #3a463c;
+  --color-subtle: #5d6b5a;
+  --color-accent: #8a9e84;
+  --color-accent-light: #a7b6a1;
+  --color-canvas: #cdd3c9;
+  --color-background: #efede4;
+  --color-surface: #fbfaf6;
+  --color-muted: #e9ece5;
+  --color-cream: #f5f5f2;
+  --color-muted-foreground: #8a8a82;
+  --color-faint: #b6bbb0;
+
+  --shadow-frame: 0 0 80px -20px rgb(31 40 35 / 0.35);
+}
+
+@utility hero-glow {
+  background-image: radial-gradient(
+    60% 100% at 50% 100%,
+    color-mix(in srgb, var(--color-accent-light) 28%, transparent),
+    transparent 65%
+  );
+}
+
 @keyframes rnfade {
   from {
     opacity: 0;
@@ -17,12 +42,12 @@
 }
 
 body {
-  background: #cdd3c9;
-  color: #2e3a30;
+  background: var(--color-canvas);
+  color: var(--color-primary);
   font-family: var(--font-montserrat), system-ui, sans-serif;
 }
 
 ::selection {
-  background: #8a9e84;
-  color: #fff;
+  background: var(--color-accent);
+  color: var(--color-white);
 }
